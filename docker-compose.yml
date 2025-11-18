@@ -1,0 +1,12 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: barbershop_auth
+    restart: always
+    environment:
+      POSTGRES_USER: barbershopuser
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: barbershopdb
+    ports:
+      - "5432:5432"
+    
