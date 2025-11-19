@@ -24,9 +24,9 @@ public class GlobalHandlerException {
     }
 
     @ExceptionHandler(DuplicatedEmailException.class)
-    public String handleDuplicatedEmailException(DuplicatedEmailException ex){
-        return ex.getMessage();
-    }  
+    public ResponseEntity<Map<String, String>> handleDuplicatedEmailException(DuplicatedEmailException ex){
+        return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.CONFLICT);
+    }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex){
