@@ -50,54 +50,46 @@ public class AuthIntegrationTest {
 
     private String performLogin(String email, String password)throws Exception{
 
-        //Cria um objeto referente ao arquivo json que queremos receber;
+      
         LoginRequestDto login = new LoginRequestDto(email, password);
 
-        /*
-         * mockMvc para simular a requisição;
-         * perform iniciar simulação;
-         * post definição endPoint e a URL;
-         * informamos o corpo da requisição no caso JSON
-         * Depois tranformamos os dados em formato Strring para json
-         * com o objectMapper
-         * 
-         */
+    
         MvcResult result = mockMvc.perform(post("/api/auth/login")
         .contentType(MediaType.APPLICATION_JSON) 
         .content(objectMapper.writeValueAsString(login)))
 
-        //Verificações
-        .andExpect(status().isOk())// Garante que o status HTTP seja 200
-        .andExpect(jsonPath("$.accessToken").exists())// garante que o accesToken existe no JSON de resposta
-        //Captura o resultado completo da requisição;
+        
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.accessToken").exists())
+        
         .andReturn();
 
-        // Retorna o corpo da RESPOSTA (o JSON enviado pelo servidor) como uma String para ser inspecionada.
+       
         return result.getResponse().getContentAsString();
 
         
     }
 
-    // AuthIntegrationTest.java
+    
 
-// Adicione junto aos seus métodos auxiliares
+
 private String generateUniqueEmail(String prefix) {
-    // Garante um email exclusivo para cada execução de teste
+   
     return prefix + UUID.randomUUID().toString().substring(0, 8) + "@test.com";
 }
 
   
 
      private void registerUser(String email, String password, Role role) throws Exception{
-        // Cria o DTO com dados de teste
+  
         RegisterRequestDto req = 
-        new RegisterRequestDto("Luiz", email, password,role); // Ou Role.USER
+        new RegisterRequestDto("Luiz", email, password,role); 
 
-         // Executa a requisição de registro
+         
          mockMvc.perform(post("/api/auth/register")
              .contentType(MediaType.APPLICATION_JSON)
              .content(objectMapper.writeValueAsString(req)))
-             // Verifica apenas se a criação foi bem-sucedida (status 201)
+        
              .andExpect(status().isCreated()); 
     }
 
@@ -131,7 +123,7 @@ private String generateUniqueEmail(String prefix) {
 
    @Test
    void shouldRegisterUserSuccessfully() throws Exception{
-    //Preparação dos dados
+ 
 
     String emailEx = "Luiz@teste.com";
     String name = "Luiz";
@@ -174,15 +166,15 @@ private String generateUniqueEmail(String prefix) {
 
        registerUser(uniqueEmail, password, Role.OWNER);
       
-        // ARRANGE 2: Faz login e obtém o Token
+        
         String loginResponseJson = performLogin(uniqueEmail, password);
 
 
         String accessToken = extractAccessToken(loginResponseJson);
 
-        // ACT & ASSERT: Tenta acessar a rota protegida
+      
         mockMvc.perform(get("/api/test/protected")
-            .header("Authorization", "Bearer " + accessToken) // <-- CORRIGIDO: Adicionado o espaço
+            .header("Authorization", "Bearer " + accessToken) 
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
     }
@@ -194,15 +186,15 @@ private String generateUniqueEmail(String prefix) {
 
        registerUser(uniqueEmail, password, Role.CLIENT);
       
-        // ARRANGE 2: Faz login e obtém o Token
+        
         String loginResponseJson = performLogin(uniqueEmail, password);
 
 
         String accessToken = extractAccessToken(loginResponseJson);
 
-        // ACT & ASSERT: Tenta acessar a rota protegida
+        
         mockMvc.perform(get("/api/test/protected")
-            .header("Authorization", "Bearer " + accessToken) // <-- CORRIGIDO: Adicionado o espaço
+            .header("Authorization", "Bearer " + accessToken)
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
     }
