@@ -1,0 +1,23 @@
+POST http://localhost:8081/api/auth/register
+Content-Type: application/json
+
+{
+    "username": "luizTest",
+    "email": "luiz@email.com",
+    "password": "123",
+    "role": "OWNER"
+}
+###
+
+POST http://localhost:8081/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "luiz@email.com",
+    "password": "123"
+}
+
+###
+
+GET http://localhost:8080/api/test
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJsdWl6QGVtYWlsLmNvbSIsInJvbGVzIjpbIlJPTEVfT1dORVIiXSwiaWF0IjoxNzY0MjYwNzMxLCJleHAiOjE3NjQyNjE2MzF9.Ubkgd8F6Fsbm3e5J94KX9wc1gtKv8GgNKQZ-yYF8bTV0BVo_P2AFJ8qOY_NW-jaYWUWOtocLoAC99NjTweDqoQ
