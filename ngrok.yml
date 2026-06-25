@@ -1,0 +1,9 @@
+version: "2"
+authtoken: 3FcFyx5tQsbVciAQkPaFnwGtgLa_4BqdNk6BrqWRqNBmi4PNc
+tunnels:
+  core:
+    proto: http
+    addr: 8080
+  auth:
+    proto: http
+    addr: 8081
