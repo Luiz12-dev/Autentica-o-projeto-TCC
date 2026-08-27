@@ -1,11 +1,15 @@
 package com.barbershop.barbershop_backend.dto;
 
-import com.barbershop.barbershop_backend.Enum.Role;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
+/**
+ * Contrato do registro publico.
+ *
+ * NAO exponha 'role' aqui. O endpoint /api/auth/register e permitAll(), entao
+ * qualquer campo deste record e controlado pelo cliente. A role e definida
+ * pelo servidor em AuthService.register.
+ */
 public record RegisterRequestDto(
 
     @NotBlank(message = "The name cannot be empty")
@@ -16,10 +20,7 @@ public record RegisterRequestDto(
     String email,
 
     @NotBlank(message = "The password cannot be empty")
-    String password,
-
-    @NotNull(message = "The role must be declared")
-    Role role
+    String password
 
 ) {
 

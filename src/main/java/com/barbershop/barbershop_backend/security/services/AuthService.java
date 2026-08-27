@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.barbershop.barbershop_backend.Enum.Role;
 import com.barbershop.barbershop_backend.dto.AuthResponseDto;
 import com.barbershop.barbershop_backend.dto.LoginRequestDto;
 import com.barbershop.barbershop_backend.dto.RegisterRequestDto;
@@ -50,7 +51,10 @@ public class AuthService {
         .email(req.email())
         //Hashing
         .password(passwordEncoder.encode(req.password()))
-        .role(req.role())
+        // Role fixada no servidor: o registro publico nunca cria OWNER.
+        // Contas OWNER vem do seed em BarbershopBackendApplication ou de
+        // promocao manual no banco.
+        .role(Role.CLIENT)
         .build();
 
         User savedUser = userRepository.save(user);

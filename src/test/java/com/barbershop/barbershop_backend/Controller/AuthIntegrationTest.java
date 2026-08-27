@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import com.barbershop.barbershop_backend.Enum.Role;
 import com.barbershop.barbershop_backend.dto.LoginRequestDto;
 import com.barbershop.barbershop_backend.dto.RegisterRequestDto;
+import com.barbershop.barbershop_backend.models.User;
 import com.barbershop.barbershop_backend.repositorys.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
@@ -70,13 +72,21 @@ public class AuthIntegrationTest {
 
     private void registerUser(String email, String password, Role role) throws Exception {
 
-        RegisterRequestDto req = new RegisterRequestDto("Luiz", email, password, role);
+        RegisterRequestDto req = new RegisterRequestDto("Luiz", email, password);
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(req)))
 
                 .andExpect(status().isCreated());
+
+        // O registro publico so cria CLIENT. Para os cenarios de OWNER, promovemos
+        // pelo repositorio — que e exatamente o caminho previsto em producao.
+        if (role == Role.OWNER) {
+            User user = userRepository.findByEmail(email).orElseThrow();
+            user.setRole(Role.OWNER);
+            userRepository.save(user);
+        }
     }
 
     private String extractAccessToken(String jsonResponse) throws Exception {
@@ -103,7 +113,7 @@ public class AuthIntegrationTest {
         String name = "Luiz";
         Role role = Role.CLIENT;
 
-        RegisterRequestDto requestDto = new RegisterRequestDto(name, emailEx, "SuperSecret", role);
+        RegisterRequestDto requestDto = new RegisterRequestDto(name, emailEx, "SuperSecret");
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
@@ -236,4 +246,25 @@ public class AuthIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void registerShouldAlwaysCreateClientEvenIfOwnerIsRequested() throws Exception {
+        // JSON cru com role=OWNER, simulando quem ignora o formulario e chama a API direto.
+        String maliciousPayload = """
+                {
+                  "username": "Atacante",
+                  "email": "atacante@email.com",
+                  "password": "123456",
+                  "role": "OWNER"
+                }
+                """;
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(maliciousPayload))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.role").value("CLIENT"));
+
+        assertThat(userRepository.findByEmail("atacante@email.com").orElseThrow().getRole())
+                .isEqualTo(Role.CLIENT);
+    }
 }
