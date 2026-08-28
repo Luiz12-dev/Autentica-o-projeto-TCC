@@ -118,7 +118,8 @@ public class AuthIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.username").value(emailEx))
+                // username carrega o nome real (fullName), nao o e-mail.
+                .andExpect(jsonPath("$.username").value(name))
                 .andExpect(jsonPath("$.email").value(emailEx))
                 .andExpect(jsonPath("$.role").value(role.name()))
                 .andExpect(jsonPath("$.id").exists())
@@ -266,5 +267,18 @@ public class AuthIntegrationTest {
 
         assertThat(userRepository.findByEmail("atacante@email.com").orElseThrow().getRole())
                 .isEqualTo(Role.CLIENT);
+    }
+
+    @Test
+    void registerShouldReturnRealNameAndCreationDate() throws Exception {
+        RegisterRequestDto req = new RegisterRequestDto("Luiz Otávio", "luiz.nome@email.com", "123456");
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(req)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.username").value("Luiz Otávio"))
+                .andExpect(jsonPath("$.email").value("luiz.nome@email.com"))
+                .andExpect(jsonPath("$.createdAt").isNotEmpty());
     }
 }

@@ -57,7 +57,9 @@ public class AuthService {
         .role(Role.CLIENT)
         .build();
 
-        User savedUser = userRepository.save(user);
+        // saveAndFlush garante que @CreationTimestamp ja tenha sido aplicado
+        // antes de montarmos a resposta.
+        User savedUser = userRepository.saveAndFlush(user);
 
         return RegisterResponseDto.formatResponse(savedUser);
     }

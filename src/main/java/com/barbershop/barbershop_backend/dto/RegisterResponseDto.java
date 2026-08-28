@@ -17,7 +17,9 @@ public record RegisterResponseDto(
       public static RegisterResponseDto formatResponse (User user){
             return new RegisterResponseDto(
                   user.getId(),
-                  user.getUsername(),
+                  // getUsername() vem de UserDetails e devolve o e-mail.
+                  // O nome real esta em fullName.
+                  user.getFullName(),
                   user.getEmail(),
                   user.getRole(),
                   user.getCreatedAt()
