@@ -9,4 +9,9 @@ services:
       POSTGRES_DB: barbershopdb
     ports:
       - "5432:5432"
-    
+    volumes:
+      # Sem isto, remover o container apaga todos os usuarios cadastrados.
+      - postgres_auth_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_auth_data:
