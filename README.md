@@ -1,6 +1,6 @@
 # 🛡️ Auth API — Módulo de Autenticação Reutilizável
 
-API RESTful de autenticação e autorização, construída com **Java 21** e **Spring Boot 3.5**. Projetada como um **módulo independente e reutilizável** — pronto para ser integrado em qualquer aplicação que precise de registro, login, JWT e controle de acesso por roles.
+API RESTful de autenticação e autorização, construída com **Java 21** e **Spring Boot 3.3.4**. Projetada como um **módulo independente e reutilizável** — pronto para ser integrado em qualquer aplicação que precise de registro, login, JWT e controle de acesso por roles.
 
 > A ideia é simples: você clona esse repositório, adapta as roles e os endpoints para o seu domínio, e sai com uma camada de segurança completa sem precisar construir do zero.
 
@@ -11,14 +11,14 @@ API RESTful de autenticação e autorização, construída com **Java 21** e **S
 | Tecnologia | Versão | Descrição |
 |-----------|--------|-----------|
 | **Java** | 21 | Linguagem principal (LTS) |
-| **Spring Boot** | 3.5.8 | Framework principal |
+| **Spring Boot** | 3.3.4 | Framework principal |
 | **Spring Security** | 6.x | Autenticação e autorização |
 | **Spring Data JPA** | 3.x | Persistência e ORM |
 | **PostgreSQL** | 15 | Banco de dados relacional |
 | **JJWT** | 0.11.5 | Geração e validação de tokens JWT (HS512) |
 | **Lombok** | — | Redução de boilerplate |
 | **Bean Validation** | 3.x | Validação de dados de entrada |
-| **SpringDoc OpenAPI** | 2.5.0 | Swagger UI interativo |
+| **SpringDoc OpenAPI** | 2.6.0 | Swagger UI interativo |
 | **Spring Actuator** | — | Health checks e monitoramento |
 | **H2 Database** | — | Banco em memória para testes de integração |
 | **Docker Compose** | — | Infraestrutura containerizada |
@@ -70,7 +70,7 @@ O projeto inclui um `TestController` com 3 endpoints para validar o RBAC na prá
 | `GET /api/test/owner-only` | Apenas OWNER | Acesso exclusivo |
 
 ### Testes de Integração
-**10 testes de integração** com `@SpringBootTest` + `MockMvc` + H2, cobrindo:
+**13 testes** com `@SpringBootTest` + `MockMvc` + H2 em memória (perfil `test`, em `src/test/resources/application-test.properties`), cobrindo:
 
 | Teste | Cenário |
 |-------|---------|
@@ -84,6 +84,9 @@ O projeto inclui um `TestController` com 3 endpoints para validar o RBAC na prá
 | ✅ `clientShouldBeForbiddenOwnerRout` | CLIENT bloqueado em rota de OWNER (403) |
 | ✅ `ownerShouldBeForbiddenClientRout` | OWNER bloqueado em rota de CLIENT (403) |
 | ✅ `unauthenticatedUserShouldBeForbidden` | Sem token retorna 401 |
+| ✅ `registerShouldAlwaysCreateClientEvenIfOwnerIsRequested` | Payload com `"role": "OWNER"` mesmo assim cria CLIENT |
+| ✅ `registerShouldReturnRealNameAndCreationDate` | Resposta traz `fullName` e `createdAt` preenchidos |
+| ✅ `contextLoads` | Contexto Spring sobe no perfil `test` |
 
 ---
 
@@ -97,16 +100,21 @@ Registra um novo usuário no sistema.
 {
   "username": "Luiz Otávio",
   "email": "luiz@email.com",
-  "password": "senhaSegura123",
-  "role": "CLIENT"
+  "password": "senhaSegura123"
 }
 ```
+
+> O campo `role` **não faz parte do contrato**. Como `/api/auth/register` é
+> público, tudo que o cliente envia é controlado por ele — aceitar a role
+> permitiria que qualquer pessoa se cadastrasse como `OWNER`. O servidor
+> sempre cria `CLIENT`; contas `OWNER` vêm do seed de inicialização ou de
+> promoção direta no banco.
 
 **Response (201):**
 ```json
 {
   "id": "550e8400-e29b-41d4-a716-446655440000",
-  "username": "luiz@email.com",
+  "username": "Luiz Otávio",
   "email": "luiz@email.com",
   "role": "CLIENT",
   "createdAt": "2026-04-10T12:00:00"
