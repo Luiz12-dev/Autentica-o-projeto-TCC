@@ -70,7 +70,7 @@ O projeto inclui um `TestController` com 3 endpoints para validar o RBAC na prá
 | `GET /api/test/owner-only` | Apenas OWNER | Acesso exclusivo |
 
 ### Testes de Integração
-**13 testes** com `@SpringBootTest` + `MockMvc` + H2 em memória (perfil `test`, em `src/test/resources/application-test.properties`), cobrindo:
+**14 testes** com `@SpringBootTest` + `MockMvc` + H2 em memória (perfil `test`, em `src/test/resources/application-test.properties`), cobrindo:
 
 | Teste | Cenário |
 |-------|---------|
@@ -87,6 +87,7 @@ O projeto inclui um `TestController` com 3 endpoints para validar o RBAC na prá
 | ✅ `registerShouldAlwaysCreateClientEvenIfOwnerIsRequested` | Payload com `"role": "OWNER"` mesmo assim cria CLIENT |
 | ✅ `registerShouldReturnRealNameAndCreationDate` | Resposta traz `fullName` e `createdAt` preenchidos |
 | ✅ `contextLoads` | Contexto Spring sobe no perfil `test` |
+| ✅ `tokenDeveCarregarNomeETelefoneDoUsuario` | Token traz os claims `name` e `phone` |
 
 ---
 
@@ -100,7 +101,8 @@ Registra um novo usuário no sistema.
 {
   "username": "Luiz Otávio",
   "email": "luiz@email.com",
-  "password": "senhaSegura123"
+  "password": "senhaSegura123",
+  "phone": "44999999999"
 }
 ```
 
@@ -109,6 +111,11 @@ Registra um novo usuário no sistema.
 > permitiria que qualquer pessoa se cadastrasse como `OWNER`. O servidor
 > sempre cria `CLIENT`; contas `OWNER` vêm do seed de inicialização ou de
 > promoção direta no banco.
+
+> O `phone` (10 ou 11 dígitos) vai para o token como claim e, de lá, para o
+> cadastro do cliente na Core API — é como a barbearia obtém o contato de quem
+> agendou. A migration `V2` adicionou a coluna como nula, então usuários
+> anteriores a ela não têm telefone e o Core trata a ausência.
 
 **Response (201):**
 ```json
