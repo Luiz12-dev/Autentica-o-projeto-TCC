@@ -14,7 +14,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.barbershop.barbershop_backend.models.User;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
@@ -48,9 +50,21 @@ public class JwtUtils {
     .stream().map(GrantedAuthority::getAuthority)
     .collect(Collectors.toList());
 
-    return Jwts.builder()
+    JwtBuilder builder = Jwts.builder()
             .setSubject(user.getUsername())
-            .claim("roles", roles)
+            .claim("roles", roles);
+
+    // O Core nao tem cadastro de clientes: ele provisiona o Client a partir
+    // destes claims. Sem eles, o painel do dono mostrava o e-mail como nome
+    // e "00000000000" como telefone para todo mundo.
+    if (user instanceof User usuario) {
+        builder.claim("name", usuario.getFullName());
+        if (usuario.getPhone() != null) {
+            builder.claim("phone", usuario.getPhone());
+        }
+    }
+
+    return builder
             .setIssuedAt(new Date())
             .setExpiration(new Date((new Date()).getTime() + jwtExpiration))
             .signWith(getSignedKey(secretKey), SignatureAlgorithm.HS512)

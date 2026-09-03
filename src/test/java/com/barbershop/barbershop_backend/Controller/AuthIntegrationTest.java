@@ -72,7 +72,7 @@ public class AuthIntegrationTest {
 
     private void registerUser(String email, String password, Role role) throws Exception {
 
-        RegisterRequestDto req = new RegisterRequestDto("Luiz", email, password);
+        RegisterRequestDto req = new RegisterRequestDto("Luiz", email, password, "44999990000");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -113,7 +113,7 @@ public class AuthIntegrationTest {
         String name = "Luiz";
         Role role = Role.CLIENT;
 
-        RegisterRequestDto requestDto = new RegisterRequestDto(name, emailEx, "SuperSecret");
+        RegisterRequestDto requestDto = new RegisterRequestDto(name, emailEx, "SuperSecret", "44999990000");
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestDto)))
@@ -255,6 +255,7 @@ public class AuthIntegrationTest {
                   "username": "Atacante",
                   "email": "atacante@email.com",
                   "password": "123456",
+                  "phone": "44999990000",
                   "role": "OWNER"
                 }
                 """;
@@ -271,7 +272,7 @@ public class AuthIntegrationTest {
 
     @Test
     void registerShouldReturnRealNameAndCreationDate() throws Exception {
-        RegisterRequestDto req = new RegisterRequestDto("Luiz Otávio", "luiz.nome@email.com", "123456");
+        RegisterRequestDto req = new RegisterRequestDto("Luiz Otávio", "luiz.nome@email.com", "123456", "44999990000");
 
         mockMvc.perform(post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -280,5 +281,36 @@ public class AuthIntegrationTest {
                 .andExpect(jsonPath("$.username").value("Luiz Otávio"))
                 .andExpect(jsonPath("$.email").value("luiz.nome@email.com"))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty());
+    }
+
+    @Test
+    void tokenDeveCarregarNomeETelefoneDoUsuario() throws Exception {
+        // O Core provisiona o Client a partir dos claims: sem name e phone no
+        // token, o painel do dono mostrava o e-mail e "00000000000" fixo.
+        String payload = """
+                {
+                  "username": "Luiz Otávio",
+                  "email": "claims@email.com",
+                  "password": "123456",
+                  "phone": "44999998888"
+                }
+                """;
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(payload))
+                .andExpect(status().isCreated());
+
+        String resposta = performLogin("claims@email.com", "123456");
+        String token = extractAccessToken(resposta);
+
+        // Decodifica o payload do JWT sem validar assinatura.
+        String corpo = new String(java.util.Base64.getUrlDecoder().decode(
+                token.substring(token.indexOf('.') + 1, token.lastIndexOf('.'))));
+        JsonNode claims = objectMapper.readTree(corpo);
+
+        assertThat(claims.get("sub").asText()).isEqualTo("claims@email.com");
+        assertThat(claims.get("name").asText()).isEqualTo("Luiz Otávio");
+        assertThat(claims.get("phone").asText()).isEqualTo("44999998888");
     }
 }

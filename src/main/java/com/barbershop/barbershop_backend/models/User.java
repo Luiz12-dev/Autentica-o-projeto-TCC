@@ -58,6 +58,10 @@ public class User  implements UserDetails{
     @Column(name = "password", nullable = false, length = 100)
     private String password;
 
+    // Nulo nos usuarios anteriores a migration V2. O Core trata a ausencia.
+    @Column(name = "phone", length = 20)
+    private String phone;
+
     @Enumerated(EnumType.STRING)
     @NotNull
     @Column(name = "role", nullable = false)

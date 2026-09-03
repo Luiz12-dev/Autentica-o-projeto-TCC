@@ -2,6 +2,7 @@ package com.barbershop.barbershop_backend.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Contrato do registro publico.
@@ -20,7 +21,13 @@ public record RegisterRequestDto(
     String email,
 
     @NotBlank(message = "The password cannot be empty")
-    String password
+    String password,
+
+    // Vai para o JWT e, de la, para o Client provisionado pelo Core: e como
+    // o barbeiro consegue o contato de quem agendou.
+    @NotBlank(message = "The phone cannot be empty")
+    @Pattern(regexp = "[0-9]{10,11}", message = "Phone must have 10 or 11 digits")
+    String phone
 
 ) {
 

@@ -51,6 +51,7 @@ public class AuthService {
         .email(req.email())
         //Hashing
         .password(passwordEncoder.encode(req.password()))
+        .phone(req.phone())
         // Role fixada no servidor: o registro publico nunca cria OWNER.
         // Contas OWNER vem do seed em BarbershopBackendApplication ou de
         // promocao manual no banco.
