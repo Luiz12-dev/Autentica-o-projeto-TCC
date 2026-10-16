@@ -1,5 +1,6 @@
 package com.barbershop.barbershop_backend.controllers;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-
+/**
+ * Rotas que existem só para demonstrar o controle de acesso por perfil.
+ * Ficam fora de qualquer outro perfil para não chegarem à produção.
+ */
+@Profile({"dev", "test"})
 @RequestMapping("api/test")
 @RestController
 @Tag(name = "Módulo de Testes", description = "Endpoints para testes de autorização")
