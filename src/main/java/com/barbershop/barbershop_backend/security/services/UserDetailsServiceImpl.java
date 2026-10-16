@@ -5,7 +5,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.barbershop.barbershop_backend.repositorys.UserRepository;
+import com.barbershop.barbershop_backend.repository.UserRepository;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService{

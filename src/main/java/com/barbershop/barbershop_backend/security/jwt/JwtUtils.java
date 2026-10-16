@@ -1,4 +1,4 @@
-package com.barbershop.barbershop_backend.security.Jwt;
+package com.barbershop.barbershop_backend.security.jwt;
 
 
 import java.security.Key;

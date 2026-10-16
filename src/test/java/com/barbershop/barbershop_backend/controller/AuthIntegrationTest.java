@@ -1,4 +1,4 @@
-package com.barbershop.barbershop_backend.Controller;
+package com.barbershop.barbershop_backend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -8,11 +8,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import com.barbershop.barbershop_backend.Enum.Role;
+import com.barbershop.barbershop_backend.enums.Role;
 import com.barbershop.barbershop_backend.dto.LoginRequestDto;
 import com.barbershop.barbershop_backend.dto.RegisterRequestDto;
 import com.barbershop.barbershop_backend.models.User;
-import com.barbershop.barbershop_backend.repositorys.UserRepository;
+import com.barbershop.barbershop_backend.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -128,7 +128,7 @@ public class AuthIntegrationTest {
     }
 
     @Test
-    void shouldFailedLoginWithIncorrectPassword() throws Exception {
+    void shouldFailLoginWithIncorrectPassword() throws Exception {
 
         String email = "fail_Test@teste.com";
 
@@ -143,7 +143,7 @@ public class AuthIntegrationTest {
     }
 
     @Test
-    void OwnerRoleShouldAccessRoute() throws Exception {
+    void ownerRoleShouldAccessRoute() throws Exception {
         String uniqueEmail = generateUniqueEmail("owner");
         String password = "ownerPass123";
 
@@ -194,7 +194,7 @@ public class AuthIntegrationTest {
     }
 
     @Test
-    void clientShouldBeForbiddenOwnerRout() throws Exception {
+    void clientShouldBeForbiddenOnOwnerRoute() throws Exception {
         String email = generateUniqueEmail("Cliente");
         String password = "client123";
 
@@ -210,7 +210,7 @@ public class AuthIntegrationTest {
     }
 
     @Test
-    void clientShouldAccesClientRoute() throws Exception {
+    void clientShouldAccessClientRoute() throws Exception {
         String email = generateUniqueEmail("Client");
         String password = "CLient123";
 
@@ -225,7 +225,7 @@ public class AuthIntegrationTest {
     }
 
     @Test
-    void ownerShouldBeForbiddenClientRout() throws Exception {
+    void ownerShouldBeForbiddenOnClientRoute() throws Exception {
         String email = generateUniqueEmail("owner");
         String password = "Owner123";
 
@@ -241,7 +241,7 @@ public class AuthIntegrationTest {
     }
 
     @Test
-    void unauthenticatedUserShouldBeForbidden() throws Exception {
+    void unauthenticatedUserShouldBeUnauthorized() throws Exception {
         mockMvc.perform(get("/api/test/protected")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized());

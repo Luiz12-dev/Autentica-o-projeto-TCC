@@ -3,7 +3,7 @@ package com.barbershop.barbershop_backend.dto;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.barbershop.barbershop_backend.Enum.Role;
+import com.barbershop.barbershop_backend.enums.Role;
 import com.barbershop.barbershop_backend.models.User;
 
 public record RegisterResponseDto(

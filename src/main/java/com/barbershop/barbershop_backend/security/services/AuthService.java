@@ -9,15 +9,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.barbershop.barbershop_backend.Enum.Role;
+import com.barbershop.barbershop_backend.enums.Role;
 import com.barbershop.barbershop_backend.dto.AuthResponseDto;
 import com.barbershop.barbershop_backend.dto.LoginRequestDto;
 import com.barbershop.barbershop_backend.dto.RegisterRequestDto;
 import com.barbershop.barbershop_backend.dto.RegisterResponseDto;
 import com.barbershop.barbershop_backend.exceptions.DuplicatedEmailException;
 import com.barbershop.barbershop_backend.models.User;
-import com.barbershop.barbershop_backend.repositorys.UserRepository;
-import com.barbershop.barbershop_backend.security.Jwt.JwtUtils;
+import com.barbershop.barbershop_backend.repository.UserRepository;
+import com.barbershop.barbershop_backend.security.jwt.JwtUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service

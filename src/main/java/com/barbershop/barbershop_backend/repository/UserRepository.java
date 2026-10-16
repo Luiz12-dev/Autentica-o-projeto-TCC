@@ -1,4 +1,4 @@
-package com.barbershop.barbershop_backend.repositorys;
+package com.barbershop.barbershop_backend.repository;
 
 import java.util.Optional;
 import java.util.UUID;

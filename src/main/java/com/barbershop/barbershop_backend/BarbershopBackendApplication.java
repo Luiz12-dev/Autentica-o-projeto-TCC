@@ -6,9 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.barbershop.barbershop_backend.Enum.Role;
+import com.barbershop.barbershop_backend.enums.Role;
 import com.barbershop.barbershop_backend.models.User;
-import com.barbershop.barbershop_backend.repositorys.UserRepository;
+import com.barbershop.barbershop_backend.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
