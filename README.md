@@ -33,13 +33,13 @@ O projeto segue a **Arquitetura em Camadas** com separação clara de responsabi
 src/main/java/com/barbershop/barbershop_backend/
 ├── controllers/           # Endpoints REST (Auth + Test)
 ├── dto/                   # Java Records para request/response
-├── Enum/                  # Roles do sistema (CLIENT, OWNER)
+├── enums/                 # Roles do sistema (CLIENT, OWNER)
 ├── exceptions/            # Exceções customizadas + GlobalHandler
 ├── models/                # Entidade User (implements UserDetails)
-├── repositorys/           # Spring Data JPA Repository
+├── repository/            # Spring Data JPA Repository
 ├── security/
 │   ├── config/            # SecurityConfig (SecurityFilterChain, CORS, BCrypt)
-│   ├── Jwt/               # JwtUtils, JwtAuthenticationFilter, JwtAuthEntryPoint
+│   ├── jwt/               # JwtUtils, JwtAuthenticationFilter, JwtAuthEntryPoint
 │   └── services/          # AuthService, UserDetailsServiceImpl
 └── BarbershopBackendApplication.java
 ```
@@ -61,7 +61,7 @@ src/main/java/com/barbershop/barbershop_backend/
 - Rotas públicas, protegidas e exclusivas por role
 
 ### Endpoints de Teste
-O projeto inclui um `TestController` com 3 endpoints para validar o RBAC na prática:
+O projeto inclui um `TestController` com 3 endpoints para validar o RBAC na prática. Ele só é carregado nos perfis `dev` e `test` (`@Profile`), então essas rotas **não existem** quando a aplicação sobe sem perfil ou em produção — ver a seção *Como executar*.
 
 | Endpoint | Acesso | Descrição |
 |----------|--------|-----------|
@@ -70,24 +70,26 @@ O projeto inclui um `TestController` com 3 endpoints para validar o RBAC na prá
 | `GET /api/test/owner-only` | Apenas OWNER | Acesso exclusivo |
 
 ### Testes de Integração
-**14 testes** com `@SpringBootTest` + `MockMvc` + H2 em memória (perfil `test`, em `src/test/resources/application-test.properties`), cobrindo:
+**16 testes** com `@SpringBootTest` + `MockMvc` + H2 em memória (perfil `test`, em `src/test/resources/application-test.properties`), cobrindo:
 
 | Teste | Cenário |
 |-------|---------|
 | ✅ `shouldRegisterUserSuccessfully` | Registro retorna 201 + dados sem senha |
 | ✅ `shouldLoginUserSuccessfully` | Login retorna 200 + accessToken |
-| ✅ `shouldFailedLoginWithIncorrectPassword` | Senha errada retorna 401 |
-| ✅ `OwnerRoleShouldAccessRoute` | OWNER acessa rota compartilhada |
+| ✅ `shouldFailLoginWithIncorrectPassword` | Senha errada retorna 401 |
+| ✅ `ownerRoleShouldAccessRoute` | OWNER acessa rota compartilhada |
 | ✅ `clientRoleShouldAccessRoute` | CLIENT acessa rota compartilhada |
 | ✅ `ownerShouldAccessOwnerOnlyRoute` | OWNER acessa rota exclusiva |
-| ✅ `clientShouldAccesClientRoute` | CLIENT acessa rota exclusiva |
-| ✅ `clientShouldBeForbiddenOwnerRout` | CLIENT bloqueado em rota de OWNER (403) |
-| ✅ `ownerShouldBeForbiddenClientRout` | OWNER bloqueado em rota de CLIENT (403) |
-| ✅ `unauthenticatedUserShouldBeForbidden` | Sem token retorna 401 |
+| ✅ `clientShouldAccessClientRoute` | CLIENT acessa rota exclusiva |
+| ✅ `clientShouldBeForbiddenOnOwnerRoute` | CLIENT bloqueado em rota de OWNER (403) |
+| ✅ `ownerShouldBeForbiddenOnClientRoute` | OWNER bloqueado em rota de CLIENT (403) |
+| ✅ `unauthenticatedUserShouldBeUnauthorized` | Sem token retorna 401 |
 | ✅ `registerShouldAlwaysCreateClientEvenIfOwnerIsRequested` | Payload com `"role": "OWNER"` mesmo assim cria CLIENT |
 | ✅ `registerShouldReturnRealNameAndCreationDate` | Resposta traz `fullName` e `createdAt` preenchidos |
 | ✅ `contextLoads` | Contexto Spring sobe no perfil `test` |
 | ✅ `tokenDeveCarregarNomeETelefoneDoUsuario` | Token traz os claims `name` e `phone` |
+| ✅ `testControllerShouldNotBeLoadedOutsideDevAndTestProfiles` | Fora de `dev`/`test`, o `TestController` não é carregado |
+| ✅ `testRoutesShouldNotExistOutsideDevAndTestProfiles` | Fora de `dev`/`test`, `/api/test/*` responde 404 |
 
 ---
 
@@ -190,6 +192,12 @@ docker compose up -d
 ./mvnw spring-boot:run
 ```
 
+Para ter também as rotas de demonstração `/api/test/*`, suba com o perfil `dev`:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
 ### 3. Acessar o Swagger UI
 ```
 http://localhost:8081/swagger-ui/index.html
@@ -200,6 +208,8 @@ http://localhost:8081/swagger-ui/index.html
 ./mvnw test
 ```
 
+O JaCoCo gera o relatório de cobertura na mesma execução, em `target/site/jacoco/index.html`.
+
 ---
 
 ## 🛠️ Melhorias Futuras
@@ -208,7 +218,6 @@ http://localhost:8081/swagger-ui/index.html
 - [ ] Rate limiting para proteção contra brute force
 - [ ] Endpoint para alterar senha
 - [ ] Soft delete de usuários (campo `isActive` já existe na entidade)
-- [ ] CI/CD com GitHub Actions para rodar testes automaticamente
 
 ---
 
