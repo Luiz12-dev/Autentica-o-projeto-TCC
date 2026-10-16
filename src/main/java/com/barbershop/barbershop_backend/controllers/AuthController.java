@@ -32,8 +32,8 @@ public class AuthController {
 
 
 
-    @Operation(summary = "Registra um novo usuário no sistema (Cliente ou Proprietário)", 
-    description ="Endpoint público para criação de um novo cliente" )
+    @Operation(summary = "Cadastra um novo cliente",
+    description ="Endpoint público. O perfil é sempre CLIENT, definido pelo servidor; o proprietário não se cadastra por aqui." )
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDto> register(@RequestBody @Valid RegisterRequestDto req){
 
